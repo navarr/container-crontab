@@ -69,7 +69,7 @@ func (ct *Crontab) AddJob(id string, labels map[string]string, jobType string) e
 	var job *DockerJob
 
 	if _, ok := ct.jobs[id]; ok {
-		logrus.Debugf("Ignoring Event: %d with job id: %d", id, ct.jobs[id])
+		logrus.Debugf("Ignoring Event: %s with job id: %s", id, ct.jobs[id].Job.ID)
 		return nil
 	}
 

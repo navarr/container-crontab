@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"os"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
@@ -58,10 +59,14 @@ func NewDockerHandler(opts *DockerHandlerOpts) (*DockerHandler, error) {
 		return nil, err
 	}
 
+	cronGroup, useGroups := os.LookupEnv("CRON_GROUP")
+
 	// Scan containers
 	logrus.Infof("Scanning for container cron entries")
 	for _, container := range containers {
-		if _, ok := container.Labels["cron.schedule"]; ok {
+		_, ok := container.Labels["cron.schedule"]
+		containerGroup, hasGroup := container.Labels["cron.group"]
+		if ok && ((!useGroups && !hasGroup) || containerGroup == cronGroup) {
 			crontab.AddJob(container.ID, container.Labels, "docker")
 		}
 	}
